@@ -1,0 +1,11 @@
+# Ignoruj środowisko virtualenv
+venv/
+
+# Ignoruj pliki cache Pythona
+__pycache__/
+*.pyc
+
+# Ignoruj pliki tymczasowe edytorów
+*.log
+*.swp
+*.swo
