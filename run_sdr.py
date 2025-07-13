@@ -7,6 +7,10 @@ SoapySDR.setLogLevel(SoapySDR.SOAPY_SDR_FATAL)
 import bias_tee
 import sdr_scan
 
+
+# TO check id: prompt in comand line: 'SoapySDRUtil --find' and find ypur HackRF serial number
+SERIAL = "0000000000000000436c63dc2f272b63"  # HackRF serial number, 
+
 HELP = """
 Dostepne polecenia:
   bias on        - wlacz Bias-Tee
@@ -35,7 +39,8 @@ def input_float(msg):
 def main():
     # Polaczenie z SDR
     try:
-        sdr = SoapySDR.Device()
+        #sdr = SoapySDR.Device()
+        sdr = SoapySDR.Device(dict(driver="hackrf", serial=SERIAL))
     except Exception as e:
         sys.exit(f"Blad polaczenia z SDR: {e}")
 
