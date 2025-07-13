@@ -15,9 +15,17 @@ def get_samples(sdr, sample_rate, center_freq, gain, n_samples, channel=0):
     sample_format = SoapySDR.SOAPY_SDR_CF32
 
     stream = sdr.setupStream(direction, sample_format)
-    sdr.activateStream(stream)
+    
+    try:
+        sdr.activateStream(stream)
+        result = sdr.readStream(stream, [buffer], n_samples)
+    finally:
+        try:
+            sdr.deactivateStream(stream)
+            sdr.closeStream(stream)
+        except:
+            pass
 
-    result = sdr.readStream(stream, [buffer], n_samples)
 
     sdr.deactivateStream(stream)
     sdr.closeStream(stream)

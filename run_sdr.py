@@ -43,8 +43,8 @@ def main():
     print(f"Uzywany sterownik SDR: {driver}")
 
     # Wymagany: HackRF
-    #if driver != "hackrf":
-    #    sys.exit(f"Brak obslugiwanego SDR - wymagany 'hackrf', wykryto '{driver}'.")
+    if driver != "hackrf":
+        sys.exit(f"Brak obslugiwanego SDR - wymagany 'hackrf', wykryto '{driver}'.")
 
     print(">>> Wpisz 'help' aby zobaczyc komendy.")
 
