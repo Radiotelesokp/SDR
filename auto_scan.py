@@ -13,9 +13,9 @@ import SoapySDR
 
 SoapySDR.setLogLevel(SoapySDR.SOAPY_SDR_FATAL)
 
-import bias_tee          # Twój moduł do sterowania zasilaniem anteny
-import sdr_spectrum      # Nowy moduł z prawdziwym spektrogramem
-import plot_csv          # Moduł do rysowania spektrogramów
+import bias_tee
+import sdr_spectrum
+import plot_csv
 
 
 # ────────── KONFIGURACJA ──────────────────────────────────────────────────────
@@ -31,7 +31,7 @@ SAMPLE_RATE = 2_000_000          # 2 MS/s
 GAIN        = 32                 # dB
 N_SAMPLES   = 1_048_576          # 1 M próbek (1024*1024)
 
-# Bias-Tee (True = włącz, False = nie włączaj)
+# Bias-Tee (True = włącz, False = wyłącz)
 USE_BIAS_TEE = False
 # ──────────────────────────────────────────────────────────────────────────────
 

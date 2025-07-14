@@ -71,5 +71,4 @@ python3 plot_csv.py 1000000000-2000000000_2025-07-14 spectrum
 
 ## Uwagi
 - SoapySDR i sterowniki HackRF instaluj systemowo (nie przez pip)
-- Jeśli pojawią się błędy importu, sprawdź czy środowisko wirtualne ma dostęp do systemowych pakietów
-- W razie problemów z matplotlib: sprawdź czy nie masz kilku wersji tej biblioteki
+- Jeśli pojawią się błędy importu, sprawdź czy środowisko wirtualne ma dostęp do systemowych pakietów, najprościej przeainstalować wszystko
