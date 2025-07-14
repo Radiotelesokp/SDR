@@ -9,3 +9,8 @@ __pycache__/
 *.log
 *.swp
 *.swo
+
+*.csv
+
+output/
+
