@@ -12,8 +12,27 @@ import os
 OUTPUT_DIR = "output"
 
 def scan_band(sdr, sample_rate, gain, n_samples,
-              start_freq, stop_freq, step_freq, channel=0):
+              start_freq, stop_freq, step_freq, channel=0, callback=None):
     results = []
+
+    # If a callback is provided, invoke it per frequency instead of writing files
+    if callback is not None:
+        for freq in np.arange(start_freq, stop_freq + step_freq, step_freq):
+            samples  = get_samples(sdr, sample_rate, freq, gain, n_samples, channel)
+            spectrum = np.fft.fftshift(np.fft.fft(samples))
+
+            max_val  = np.abs(spectrum).max()
+            mean_val = np.mean(np.abs(spectrum) ** 2)
+
+            if max_val == 0 or mean_val == 0:
+                continue
+
+            max_db  = 20 * np.log10(max_val)
+            # Call user-provided callback with frequency and measured power
+            callback(freq, max_db)
+
+            results.append((freq, max_db, mean_val))
+        return results
 
     today_str  = date.today().isoformat()
     range_str  = f"{int(start_freq)}-{int(stop_freq)}"

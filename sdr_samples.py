@@ -7,9 +7,9 @@ import SoapySDR
 def get_samples(sdr, sample_rate, center_freq, gain, n_samples, channel=0):
     direction = SoapySDR.SOAPY_SDR_RX
 
-    sdr.setSampleRate(direction, channel, sample_rate)
-    sdr.setFrequency(direction, channel, center_freq)
-    sdr.setGain(direction, channel, gain)
+    sdr.setSampleRate(direction, channel, float(sample_rate))
+    sdr.setFrequency(direction, channel, float(center_freq))
+    sdr.setGain(direction, channel, float(gain))
 
     buffer = np.empty(n_samples, dtype=np.complex64)
     sample_format = SoapySDR.SOAPY_SDR_CF32
@@ -25,10 +25,6 @@ def get_samples(sdr, sample_rate, center_freq, gain, n_samples, channel=0):
             sdr.closeStream(stream)
         except:
             pass
-
-
-    sdr.deactivateStream(stream)
-    sdr.closeStream(stream)
 
     if result.ret <= 0:
         raise RuntimeError("Blad pobierania probek z SDR.")

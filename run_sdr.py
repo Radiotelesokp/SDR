@@ -6,19 +6,23 @@ SoapySDR.setLogLevel(SoapySDR.SOAPY_SDR_FATAL)
 
 import bias_tee
 import sdr_scan
+import sdr_spectrum
+import plot_csv
 
 
 # TO check id: prompt in comand line: 'SoapySDRUtil --find' and find ypur HackRF serial number
 SERIAL = "0000000000000000436c63dc2f272b63"  # HackRF serial number, 
 
 HELP = """
-Dostepne polecenia:
-  bias on        - wlacz Bias-Tee
-  bias off       - wylacz Bias-Tee
-  bias status    - pokaz stan Bias-Tee
-  scan           - skanuj pasmo
-  help           - pokaz menu
-  exit           - wyjscie z programu
+Dostępne polecenia:
+  bias on        - włącz Bias-Tee
+  bias off       - wyłącz Bias-Tee
+  bias status    - pokaż stan Bias-Tee
+  spectrum       - skanuj spektrum (szczegółowy FFT)
+  power          - skanuj moc (jeden punkt na częstotliwość)
+  plot           - narysuj wykres z zapisanych danych
+  help           - pokaż menu
+  exit           - wyjście z programu
 """
 
 def input_float(msg):
@@ -33,7 +37,7 @@ def input_float(msg):
             return float(val)
 
         except ValueError:
-            print("Wpisz poprawna liczbe")
+            print("Wpisz poprawną liczbę")
 
 
 def main():
@@ -73,9 +77,8 @@ def main():
                 print("Blad Bias-Tee:", err)
             continue
 
-
-        # Skanowanie + wykres 
-        if cmd == "scan":
+        # Skanowanie spektrum(poprawne FFT) 
+        if cmd == "spectrum":
             try:
                 start_freq  = input_float("Start freq  (Hz): ")
                 stop_freq   = input_float("Stop freq   (Hz): ")
@@ -84,17 +87,64 @@ def main():
                 gain        = input_float("Gain        (dB): ")
                 n_samples   = int(input_float("Sample count: "))
 
-                print("» Rozpoczynam skanowanie...  (Ctrl+C aby przerwac)")
-                sdr_scan.scan_band(sdr, sample_rate, gain, n_samples,
-                                start_freq, stop_freq, step_freq)
-                print("» Skanowanie zakonczone.\n")
+                print("» Rozpoczynam skanowanie spektrum...  (Ctrl+C aby przerwać)")
+                frequencies, power_spectrum = sdr_spectrum.scan_spectrum_sweep(
+                    sdr, sample_rate, gain, n_samples,
+                    start_freq, stop_freq, step_freq
+                )
+                
+                print("» Skanowanie spektrum zakończone.\n")
 
             except KeyboardInterrupt:
                 print("» Skanowanie przerwane.\n")
             except Exception as err:
-                print("Blad podczas skanowania:", err)
+                print("Błąd podczas skanowania spektrum:", err)
             continue
 
+        # Skanowanie mocy (prosty)
+        if cmd == "power":
+            try:
+                start_freq  = input_float("Start freq  (Hz): ")
+                stop_freq   = input_float("Stop freq   (Hz): ")
+                step_freq   = input_float("Step        (Hz): ")
+                sample_rate = input_float("Sample rate (Hz): ")
+                gain        = input_float("Gain        (dB): ")
+                n_samples   = int(input_float("Sample count: "))
+
+                print("» Rozpoczynam skanowanie mocy...  (Ctrl+C aby przerwać)")
+                frequencies, power_levels = sdr_spectrum.scan_power_vs_frequency(
+                    sdr, sample_rate, gain, n_samples,
+                    start_freq, stop_freq, step_freq
+                )
+                
+                print("» Skanowanie mocy zakończone.\n")
+
+            except KeyboardInterrupt:
+                print("» Skanowanie przerwane.\n")
+            except Exception as err:
+                print("Błąd podczas skanowania mocy:", err)
+            continue
+
+        # Rysowanie wykresów
+        if cmd == "plot":
+            try:
+                prefix = input("Podaj prefix pliku (np. 1000-2000_2025-07-14): ").strip()
+                plot_type = input("Typ wykresu [spectrum/power/max_mean]: ").strip().lower()
+                
+                if plot_type in ["spectrum", "s"]:
+                    plot_csv.plot_spectrum_from_csv(prefix, save=True, show=True)
+                elif plot_type in ["power", "p"]:
+                    plot_csv.plot_power_from_csv(prefix, save=True, show=True)
+                elif plot_type in ["max_mean", "mm", ""]:
+                    plot_csv.plot_max_and_mean(prefix, save=True, show=True)
+                else:
+                    print("Nieznany typ wykresu")
+                    
+            except KeyboardInterrupt:
+                print("Anulowano.\n")
+            except Exception as err:
+                print("Błąd podczas rysowania:", err)
+            continue
 
         # Pomoc / Wyjscie
         if cmd in {"help"}:
