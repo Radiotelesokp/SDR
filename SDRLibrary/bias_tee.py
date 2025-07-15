@@ -1,21 +1,25 @@
 # bias_tee.py - sterowanie zasilaniem Bias-Tee
 
-def control_bias_tee(sdr, action):
-    try:
-        if action == "status":
-            state = sdr.readSetting("bias_tx")
-            print("Bias-Tee status:", "ON" if state == "true" else "OFF")
+class BiasTee:
+    def __init__(self, sdr):
+        self.sdr = sdr
+        self.controlBiasTee("off")
 
-        elif action == "on":
-            sdr.writeSetting("bias_tx", "true")
-            print("Bias-Tee zostal wlaczony.")
+    def getStatus(self):
+        try:
+            state = self.sdr.readSetting("bias_tx")
+            return "on" if state == "true" else "off"
+        except Exception as e:
+            print("Error operation Bias-Tee: ", e)
 
-        elif action == "off":
-            sdr.writeSetting("bias_tx", "false")
-            print("Bias-Tee zostal wylaczony.")
+    def controlBiasTee(self, action):
+        try:
+            if action.lower() == "on":
+                self.sdr.writeSetting("bias_tx", "true")
+            elif action.lower() == "off":
+                self.sdr.writeSetting("bias_tx", "false")
+            else:
+                raise ValueError(f"Unsupported operation Bias-Tee: '{action}'")
 
-        else:
-            print("Pominieto sterowanie Bias-Tee.")
-
-    except Exception as e:
-        print("Blad operacji Bias-Tee:", e)
+        except Exception as e:
+            print("Error operation Bias-Tee: ", e)

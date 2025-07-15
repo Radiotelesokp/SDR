@@ -15,4 +15,4 @@ from SDRLibrary.plot_csv import *
 from SDRLibrary.sdr_samples import *
 from SDRLibrary.sdr_scan import *
 
-__all__ = ["control_bias_tee", "plot_max_and_mean", "get_samples", "scan_band"]
+__all__ = ["BiasTee", "SpectrumScanner", "plot_max_and_mean", "get_samples"]
