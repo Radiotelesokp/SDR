@@ -1,9 +1,22 @@
-# Ignoruj środowisko virtualenv
-venv/
+# Ignorevirtualenv
+.env/
+.venv
+venv
+.venv
 
-# Ignoruj pliki cache Pythona
+# Ignore IDE
+.idea
+.code
+
+# Ignore file cache Python
 __pycache__/
 *.pyc
+
+# Ignore files
+*.csv
+*.jpg
+*.png
+*.zip
 
 # Ignoruj pliki tymczasowe edytorów
 *.log
