@@ -3,7 +3,7 @@ import SoapySDR
 import logging
 import base64
 from flask import Flask, jsonify, send_file
-from SDRLibrary import BiasTee, SpectrumScanner
+from SDRLibrary import BiasTee, SpectrumScanner, SpectrumSender
 
 SoapySDR.setLogLevel(SoapySDR.SOAPY_SDR_FATAL)
 app = Flask(__name__)
@@ -22,6 +22,7 @@ PUT     /biastee/<action>                                                       
 GET     /biastee/status                                                                         get Bias-Tee state
 GET     /help                                                                                   show help
 POST    /scan/<start_freq>/<stop_freq>/<step_freq>/<sample_rate>/<gain>/<n_samples>/<channel>   scan spectrum
+POST    /send/signal/                                                                           send signal from SDR
 """
 @app.route('/')
 def home():
@@ -61,8 +62,21 @@ def scan_spectrum(start_freq, stop_freq, step_freq, sample_rate, gain, n_samples
 
     except (TypeError, ValueError) as ex:
         return jsonify({"message": f"Please give correct parameters. Error: {ex}"})
-    except RuntimeError as ex:
-        return jsonify({"message": f"SDR have problem: {ex}"})
+    except Exception as ex:
+        return jsonify({"message": f"Error: {str(ex)}"})
+
+@app.route('/send/<center_freq>/<tone_freq>/<duration>/<sample_rate>/<gain>', methods=['POST'])
+def send_spectrum(center_freq, tone_freq, duration, sample_rate, gain):
+    try:
+        spectrumSender = SpectrumSender(sdr, center_freq, tone_freq, duration, sample_rate, gain)
+        logger.info("Starting sending signal...")
+        spectrumSender.send()
+        logger.info("Ending sending signal...")
+
+        return jsonify({"message": f"Send signal successfully."})
+
+    except (TypeError, ValueError) as ex:
+        return jsonify({"message": f"Please give correct parameters. Error: {ex}"})
     except Exception as ex:
         return jsonify({"message": f"Error: {str(ex)}"})
 
@@ -72,15 +86,17 @@ def get_help():
 
 if __name__ == '__main__':
     try:
-        args = dict(driver="hackrf")
+        args = dict(driver="hackrf", serial="0000000000000000436c63dc2f272b63")
         sdr = SoapySDR.Device(args)
+
         driver = sdr.getDriverKey().lower()
         logger.info(f"Used driver SDR: {driver}")
+
         if driver != "hackrf":
-           raise ValueError(f"No SDR supported - required 'hackrf, but is {driver}")
+            raise ValueError(f"No SDR supported - required 'hackrf', but is {driver}")
 
         bias_tee = BiasTee(sdr)
     except Exception as ex:
         sys.exit(f"Connection error with SDR: {ex}")
 
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)

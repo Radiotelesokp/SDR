@@ -3,7 +3,7 @@ import zipfile
 import numpy as np
 import SoapySDR
 import logging
-from datetime import date
+from datetime import datetime
 from SDRLibrary import plot_max_and_mean
 
 
@@ -52,13 +52,13 @@ class SpectrumScanner:
         self.sdr.closeStream(stream)
 
         if result.ret <= 0:
-            raise RuntimeError("SDR sampling error.")
+            self.logger.warning(f"SDR sampling error: Cannot read {freq} Hz. ({result.ret})")
 
         return buffer[:result.ret]
 
     def scan(self):
         results = []
-        today_str = date.today().isoformat()
+        today_str = datetime.now().isoformat(sep="T", timespec="seconds")
         max_filename = f"max_{int(self.start_freq)}-{int(self.stop_freq)}_{today_str}.csv"
         mean_filename = f"mean_{int(self.start_freq)}-{int(self.stop_freq)}_{today_str}.csv"
 
